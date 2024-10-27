@@ -1,0 +1,42 @@
+import numpy as np
+import cv2
+import av
+import io
+
+from fastapi import FastAPI
+from fastapi.responses import StreamingResponse
+
+n_frmaes = 100
+width, height, fps = 640, 480, 23
+
+output_memory_file = io.BytesIO()
+
+output = av.open(output_memory_file, 'w', format="mp4")
+stream = output.add_stream('h264', fps)
+stream.width = width
+stream.height = height
+stream.pix_fmt = 'yuv444p'
+stream.options = {'crf': '17'}
+
+cap = cv2.VideoCapture(0)
+
+for i in range(n_frmaes):
+    ret, img = cap.read()
+
+    frame = av.VideoFrame.from_ndarray(img, format='bgr24')
+    packet = stream.encode(frame)
+    output.mux(packet)
+
+packet = stream.encode(None)
+output.mux(packet)
+output.close()
+
+
+app = FastAPI()
+
+def stream():
+  yield output_memory_file.getbuffer().tobytes()
+
+@app.get('/')
+def main():
+  return StreamingResponse(stream(), media_type='video/mp4')

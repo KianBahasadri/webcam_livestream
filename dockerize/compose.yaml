@@ -1,0 +1,8 @@
+services:
+  livestream-box:
+    image: livestream-box
+    ports:
+     - "8000:80"
+    environment:
+     - NGINX_PORT=80
+
