@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Video Stream</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        .video-container {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        video {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="video-container">
+        <video id="live-stream" autoplay muted>
+            <source src="http://localhost:8000/" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    <script>
+        // Optionally, you can add some JavaScript to handle any connection errors.
+        const video = document.getElementById('live-stream');
+        video.onerror = () => {
+            console.error('Failed to load the live stream. Retrying in 5 seconds...');
+            setTimeout(() => {
+                video.src = 'http://localhost:8000/?' + new Date().getTime();
+            }, 5000);
+        };
+    </script>
+</body>
+</html>
+
