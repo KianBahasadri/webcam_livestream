@@ -17,7 +17,9 @@ def capture_frames():
     source.set_format(1280, 720, "MJPG")
     with source:
       for frame in source:
-        next_frame = (b"--frame\r\nContent-Type: image/jpeg\r\n\r\n" + frame.data + b"\r\n")
+        with frame_condition:
+          next_frame = (b"--frame\r\nContent-Type: image/jpeg\r\n\r\n" + frame.data + b"\r\n")
+          frame_condition.notify_all()
 
 capture_thread = threading.Thread(target=capture_frames)
 capture_thread.daemon = True
@@ -29,8 +31,9 @@ def gen_frames():
   while next_frame is None:
     time.sleep(0.1)
   while True:
-    time.sleep(0.1)
-    yield next_frame
+    with frame_condition:
+      frame_condition.wait()
+      yield next_frame
 
 @app.get("/")
 def index():
