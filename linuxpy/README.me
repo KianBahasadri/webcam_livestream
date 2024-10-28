@@ -1,0 +1,9 @@
+build container:
+```
+docker build . -t webcam_livestream
+```
+
+run container:
+```
+docker run -p 443:443 --device=/dev/video0 webcam_livestream
+```
